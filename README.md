@@ -97,5 +97,15 @@ Tested against 10 diverse medical queries using a Model-as-a-Judge approach.
 └── .env.example
 ```
 
+## Engineering Decisions & Challenges Solved
+
+| Challenge | Decision | Why |
+|---|---|
+| Medical literature retrieval must balance recall with precision | Agentic iterative loop: retrieve → evaluate relevance → refine query → re-retrieve, bounded by max iterations | One-pass RAG misses relevant papers buried behind jargon; iterative refinement surfaces them without losing precision |
+| Query intent varies (literature review vs. treatment lookup vs. meta-analysis) | Query router agent classifies intent before retrieval, selecting appropriate sources (PubMed vs web vs clinical guidelines) | Different intents require different retrieval strategies — a treatment query needs different sources than a literature review |
+| LLM-generated queries can drift from the original question | Evaluation step after each retrieval round checks whether new results move closer to answering the original query | Bounded iteration prevents infinite drift; the evaluator stops retrieval when marginal relevance gains fall below threshold |
+| Research results must be traceable to sources | Every finding linked to its PubMed ID or source URL with publication metadata | A clinician cannot act on unverifiable claims — source traceability is non-negotiable |
+| Query router failures crash the entire pipeline | Fallback to a default plan with broad PubMed + web search instead of failing hard | A degraded retrieval is better than no retrieval at all for a research assistant |
+
 ## ⚠️ Disclaimer
 This system is for **educational and research purposes only**. Always consult a licensed medical professional for clinical decisions.
