@@ -1,4 +1,25 @@
 import os
+import re
+
+
+# ── AI Safety: Prompt Injection Defense ──────────────────────────────────────
+_INJECTION_PATTERNS = [
+    re.compile(r"ignore\s+(all\s+)?previous\s+instructions?", re.IGNORECASE),
+    re.compile(r"disregard\s+(all\s+)?(prior|previous|above)\s+instructions?", re.IGNORECASE),
+    re.compile(r"you\s+are\s+now\s+", re.IGNORECASE),
+    re.compile(r"act\s+as\s+(if\s+)?(you\s+are\s+)?", re.IGNORECASE),
+    re.compile(r"system\s*prompt\s*:\s*", re.IGNORECASE),
+]
+
+
+def sanitize_input(text: str, max_length: int = 50000) -> str:
+    """Strip prompt injection patterns and enforce length limits."""
+    if not text:
+        return text
+    text = text[:max_length]
+    for pattern in _INJECTION_PATTERNS:
+        text = pattern.sub("[REDACTED]", text)
+    return text
 import sys
 from dotenv import load_dotenv
 from typing import Dict
@@ -33,6 +54,8 @@ class MedicalResearchOrchestrator:
         Main agentic loop.
         Returns dict with 'report', 'sources_used', 'iterations'
         """
+        # AI Safety: sanitize user input before passing to agents
+        user_query = sanitize_input(user_query)
         print(f"\n{'='*60}")
         print(f"MEDICAL RESEARCH INTELLIGENCE SYSTEM")
         print(f"Query: {user_query}")
