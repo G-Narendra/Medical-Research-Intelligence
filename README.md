@@ -1,7 +1,9 @@
 # Project Title: Medical Research Intelligence System
 
 ## 🎯 Problem Statement
-Medical students and researchers in the UAE need to stay updated with the latest research on diseases, treatments, and drugs. Manual PubMed searches are time-consuming and miss relevant papers across multiple sources. This system acts as an autonomous AI research analyst that intelligently searches, self-evaluates, and iteratively refines its own queries until it has gathered comprehensive, evidence-based information.
+Medical students and researchers in the UAE need to stay updated with the latest research on diseases, treatments, and drugs. Manual PubMed searches are time-consuming and miss relevant papers across multiple sources — a single query might return 500 results, but the most relevant paper could be buried on page 3 behind papers that match keywords but not intent. Existing research tools (PubMed, Google Scholar) provide search but not synthesis; they return lists of papers, not answers.
+
+I built an agentic RAG loop that classifies query intent (literature review vs. treatment lookup vs. meta-analysis), selects appropriate sources (PubMed for clinical evidence, web search for current guidelines), retrieves initial results, evaluates their relevance against the original question, and refines the query if marginal relevance falls below threshold. This iterative approach was chosen over single-pass RAG because medical queries often require multiple retrieval rounds — the first round surfaces relevant terminology that improves the second round's query. The bounded iteration (max 3 rounds) prevents infinite query drift while ensuring sufficient coverage. Every finding is linked to its PubMed ID or source URL, because a clinician cannot act on unverifiable claims.
 
 ## 🏗️ Architecture
 
